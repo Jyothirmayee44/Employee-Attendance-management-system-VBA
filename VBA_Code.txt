@@ -1,0 +1,46 @@
+Sub MarkInTime()
+    Dim empName As String
+    Dim lastRow As Long
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Attendance")
+    
+    empName = InputBox("Enter Employee Name:")
+    If empName = "" Then Exit Sub
+    
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row + 1
+    ws.Cells(lastRow, 1).Value = Date
+    ws.Cells(lastRow, 2).Value = empName
+    ws.Cells(lastRow, 3).Value = Format(Time, "hh:mm AM/PM")
+    
+    MsgBox "🟢 In-Time Marked Successfully!", vbInformation
+End Sub
+
+Sub MarkOutTime()
+    Dim empName As String
+    Dim ws As Worksheet
+    Dim i As Long, found As Boolean
+    Dim inTime As Date, outTime As Date, totalHours As Double
+    
+    Set ws = ThisWorkbook.Sheets("Attendance")
+    empName = InputBox("Enter Employee Name:")
+    If empName = "" Then Exit Sub
+    
+    found = False
+    For i = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row To 2 Step -1
+        If ws.Cells(i, 1).Value = Date And ws.Cells(i, 2).Value = empName And ws.Cells(i, 4).Value = "" Then
+            ws.Cells(i, 4).Value = Format(Time, "hh:mm AM/PM")
+            inTime = TimeValue(ws.Cells(i, 3).Value)
+            outTime = TimeValue(Time)
+            totalHours = Round((outTime - inTime) * 24, 2)
+            ws.Cells(i, 5).Value = totalHours
+            found = True
+            Exit For
+        End If
+    Next i
+    
+    If found Then
+        MsgBox "🔴 Out-Time Recorded! Total Hours: " & totalHours, vbInformation
+    Else
+        MsgBox "⚠️ In-Time not found for today or already marked out.", vbExclamation
+    End If
+End Sub
